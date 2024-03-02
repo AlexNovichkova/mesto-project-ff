@@ -10,8 +10,8 @@ function closePopup(popup) {
   document.removeEventListener("keydown", closeByEscape);
 }
 
-function modalAnimated(popup) {
+function animateModal(popup) {
   popup.classList.toggle("popup_is-animated", true);
 }
 
-export { openPopup, closePopup, modalAnimated };
+export { openPopup, closePopup, animateModal };

@@ -1,4 +1,4 @@
-import { openPopup, modalAnimated } from "./modal.js";
+import { animateModal } from "./modal.js";
 import { placesList, popapImgCard } from "./index.js";
 
 function createCard(data, deleteCard, likeCard, clickCardImage) {
@@ -14,7 +14,7 @@ function createCard(data, deleteCard, likeCard, clickCardImage) {
   cardImage.alt = data.name;
   cardTitle.textContent = data.name;
 
-  modalAnimated(popapImgCard);
+  animateModal(popapImgCard);
   deleteButton.addEventListener("click", function () {
     deleteCard(cardElement);
   });
@@ -34,17 +34,8 @@ function likeCard(evt) {
   evt.target.classList.toggle("card__like-button_is-active");
 }
 
-function clickCardImage(data) {
-  const popapImg = document.querySelector(".popup__image");
-  const popapDescription = document.querySelector(".popup__caption");
-  openPopup(popapImgCard);
-  popapImg.src = data.link;
-  popapImg.alt = data.name;
-  popapDescription.textContent = data.name;
-}
-
 function deleteCard(cardElement) {
   cardElement.remove();
 }
 
-export { createCard, deleteCard, likeCard, clickCardImage, placesList };
+export { createCard, deleteCard, likeCard, placesList };

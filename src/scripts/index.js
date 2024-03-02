@@ -1,12 +1,7 @@
 import ".././styles/index.css";
-import {
-  createCard,
-  deleteCard,
-  likeCard,
-  clickCardImage,
-} from "./card.js";
+import { createCard, deleteCard, likeCard } from "./card.js";
 import { initialCards } from "./cards.js";
-import { openPopup, closePopup, modalAnimated } from "./modal.js";
+import { openPopup, closePopup, animateModal } from "./modal.js";
 
 const placesList = document.querySelector(".places__list");
 const popapImgCard = document.querySelector(".popup_type_image");
@@ -49,9 +44,11 @@ const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
 const formCardElement = popupCardEdit.querySelector(".popup__form");
 const popups = document.querySelectorAll(".popup");
+const popapImg = document.querySelector(".popup__image");
+const popapDescription = document.querySelector(".popup__caption");
 
-modalAnimated(popupCardEdit);
-modalAnimated(profileEditContainer);
+animateModal(popupCardEdit);
+animateModal(profileEditContainer);
 nameInput.value = profileTitle.textContent;
 jobInput.value = profileDescription.textContent;
 
@@ -98,7 +95,6 @@ function handleFormProfileSubmit(evt) {
 
 function handleFormCardSubmit(evt) {
   evt.preventDefault();
-  const saveProfileButton = popupCardEdit.querySelector(".popup__button");
   const placeName = document.querySelector('input[name="place-name"]').value;
   const link = formCardElement.elements.link.value;
   const cardData = {
@@ -114,6 +110,13 @@ const formProfileElement = profileEditContainer.querySelector(".popup__form");
 
 formProfileElement.addEventListener("submit", handleFormProfileSubmit);
 formCardElement.addEventListener("submit", handleFormCardSubmit);
+
+function clickCardImage(data) {
+  openPopup(popapImgCard);
+  popapImg.src = data.link;
+  popapImg.alt = data.name;
+  popapDescription.textContent = data.name;
+}
 
 function addCardToPage(cardData) {
   const cardElement = createCard(
@@ -137,5 +140,5 @@ export {
   profileEditContainer,
   closeByEscape,
   placesList,
-  popapImgCard
+  popapImgCard,
 };
