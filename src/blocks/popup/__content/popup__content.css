@@ -9,6 +9,14 @@
   padding: 34px 36px;
 }
 
+.popup__delete_card_content{
+  min-height: 181px;
+}
+
+.popup__change-avatar_content {
+  min-height: 272px;
+}
+
 @media screen and (max-width: 568px) {
   .popup__content {
     width: 100%;

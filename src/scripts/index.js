@@ -1,8 +1,11 @@
 import ".././styles/index.css";
-import { createCard, deleteCard, likeCard } from "./card.js";
+import { createCard } from "./card.js";
 import { initialCards } from "./cards.js";
 import { openPopup, closePopup, animateModal } from "./modal.js";
+import {enableValidation, clearValidationErrors} from "./validation.js";
+import { getInitialCards, updateUserInfo, createNewCard, updateAvatar, getInfo, deleteCard, likeCard, unlikeCard } from './api.js';
 
+getInfo();
 const placesList = document.querySelector(".places__list");
 const popapImgCard = document.querySelector(".popup_type_image");
 
@@ -33,6 +36,8 @@ const whoIsTheGoat = [
   { name: "Logo", link: logo },
 ];
 
+const profileImg = document.querySelector('.profile__image');
+const popapAvatar = document.querySelector('.popup_type_change-avatar');
 const nameInput = document.querySelector(".popup__input_type_name");
 const jobInput = document.querySelector(".popup__input_type_description");
 const profileEditButton = document.querySelector(".profile__edit-button");
@@ -42,6 +47,7 @@ const popupsClose = document.querySelectorAll(".popup__close");
 const cardEditButton = document.querySelector(".profile__add-button");
 const profileTitle = document.querySelector(".profile__title");
 const profileDescription = document.querySelector(".profile__description");
+const formAvatarElement = popapAvatar.querySelector(".popup__form");
 const formCardElement = popupCardEdit.querySelector(".popup__form");
 const popups = document.querySelectorAll(".popup");
 const popapImg = document.querySelector(".popup__image");
@@ -52,6 +58,12 @@ animateModal(profileEditContainer);
 nameInput.value = profileTitle.textContent;
 jobInput.value = profileDescription.textContent;
 
+profileImg.addEventListener("click", function () {
+  const changeAvatarButton = formAvatarElement.querySelector('.button');
+  updateButtonState(changeAvatarButton, false);
+  openPopup(popapAvatar);
+});
+
 popupsClose.forEach(function (closeButton) {
   closeButton.addEventListener("click", function () {
     const popup = closeButton.closest(".popup");
@@ -60,13 +72,19 @@ popupsClose.forEach(function (closeButton) {
 });
 
 profileEditButton.addEventListener("click", function () {
+  const formProfileButton = formProfileElement.querySelector('.button');
+  updateButtonState(formProfileButton, false);
+  clearValidationErrors(formProfileElement);
   nameInput.value = profileTitle.textContent;
   jobInput.value = profileDescription.textContent;
   openPopup(profileEditContainer);
 });
 
 cardEditButton.addEventListener("click", function () {
+  const addCardButton = formCardElement.querySelector('.button');
+  updateButtonState(addCardButton, false);
   openPopup(popupCardEdit);
+  
 });
 
 popups.forEach(function (popup) {
@@ -84,32 +102,67 @@ function closeByEscape(evt) {
   }
 }
 
+function handleChangeAvatarSubmit(evt) {
+  evt.preventDefault();
+  const changeAvatarButton = formAvatarElement.querySelector('.button');
+  const link = formAvatarElement.elements.link.value;
+  profileImg.style.backgroundImage = `url(${link})`;
+  updateAvatar(link);
+  updateButtonState(changeAvatarButton, true);
+  closePopup(popapAvatar);
+}
+
 function handleFormProfileSubmit(evt) {
   evt.preventDefault();
-  const name = formProfileElement.elements.name.value;
+  const formProfileButton = formProfileElement.querySelector('.button');
+  const Name = formProfileElement.elements.name.value;
   const description = formProfileElement.elements.description.value;
-  profileTitle.textContent = name;
+  profileTitle.textContent = Name;
   profileDescription.textContent = description;
+  updateUserInfo(Name, description);
+  updateButtonState(formProfileButton, true);
   closePopup(profileEditContainer);
 }
 
 function handleFormCardSubmit(evt) {
   evt.preventDefault();
+  const addCardButton = formCardElement.querySelector('.button');
+  updateButtonState(addCardButton, true);
   const placeName = document.querySelector('input[name="place-name"]').value;
   const link = formCardElement.elements.link.value;
   const cardData = {
     name: placeName,
     link: link,
   };
-  addCardToPage(cardData);
-  formCardElement.reset();
-  closePopup(popupCardEdit);
+
+  createNewCard(cardData)
+  .then((data) => {
+    addCardToPage(data, true);
+    formCardElement.reset();
+    closePopup(popupCardEdit);
+  })
+  .catch(error => {
+    console.error(error);
+  });
+}
+
+function updateButtonState(buttonElement, isSaving) {
+  if (isSaving) {
+    buttonElement.textContent = 'Сохранение...';
+    buttonElement.disabled = true;
+
+  } else {
+    buttonElement.textContent = 'Сохранить';
+    buttonElement.disabled = false;
+
+  }
 }
 
 const formProfileElement = profileEditContainer.querySelector(".popup__form");
 
 formProfileElement.addEventListener("submit", handleFormProfileSubmit);
 formCardElement.addEventListener("submit", handleFormCardSubmit);
+formAvatarElement.addEventListener("submit", handleChangeAvatarSubmit);
 
 function clickCardImage(data) {
   openPopup(popapImgCard);
@@ -118,17 +171,33 @@ function clickCardImage(data) {
   popapDescription.textContent = data.name;
 }
 
-function addCardToPage(cardData) {
+function addCardToPage(data, isMyCard) {
   const cardElement = createCard(
-    cardData,
+    data,
     deleteCard,
     likeCard,
-    clickCardImage
+    unlikeCard,
+    clickCardImage,
+    isMyCard
   );
+  if (localStorage.getItem(`like-${data._id}`) === 'true') {
+    cardElement.querySelector(".card__like-button").classList.add("card__like-button_is-active");
+  }
   placesList.insertBefore(cardElement, placesList.firstChild);
 }
 
-initialCards.forEach(addCardToPage);
+getInitialCards()
+  .then((result) => {
+    console.log(result);
+  })
+  .catch((err) => {
+    console.log(err);
+});
+
+
+
+enableValidation();
+
 
 export {
   addCardToPage,

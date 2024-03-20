@@ -7,6 +7,26 @@
   background-size: cover;
   background-position: center;
   margin: 0 29px 0 0;
+  cursor: pointer;
+}
+
+.change_icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  opacity: 0;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.change_icon:hover {
+  opacity: 100%;
+}
+
+.profile__image:hover{
+  filter: brightness(0.3);
 }
 
 @media screen and (max-width: 740px) {

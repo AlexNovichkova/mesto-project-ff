@@ -14,7 +14,12 @@
   </header>
   <main class="content">
     <section class="profile page__section">
-      <div class="profile__image"></div>
+      <div class="profile__image">
+        <span class="change_icon"><svg width="26" height="26" viewBox="0 0 26 26" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M26 3.45351L6.76981 22.7932L3.33585 19.2903L22.517 0L26 3.45351ZM0 26L5.10189 24.4706L1.52075 21.0171L0 26Z" fill="white"/>
+          </svg>
+        </span>
+      </div>
       <div class="profile__info">
         <h1 class="profile__title">Жак-Ив Кусто</h1>
         <button class="profile__edit-button" type="button"></button>
@@ -32,13 +37,35 @@
       © 2021 Mesto Russia
     </p>
   </footer>
+  <div class="popup popup_type_change-avatar">
+    <div class="popup__content popup__change-avatar_content">
+      <button type="button" class="popup__close"></button>
+      <h3 class="popup__title">Обновить аватар</h3>
+      <form class="popup__form" name="edit-profile">
+        <input type="url" name="link" id="link-input" class="popup__input popup__input_type_url" pattern="^(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)$" placeholder="Ссылка на картинку" required>
+        <span class="form__input-error link-input-error" ></span>
+        <button type="submit" class="button popup__button">Сохранить</button>
+      </form>
+    </div>
+  </div>
+  <div class="popup popup_type_delete">
+    <div class="popup__content popup__delete_card_content">
+      <button type="button" class="popup__close"></button>
+      <h3 class="popup__title">Вы уверены?</h3>
+      <form class="popup__form" name="edit-profile">
+        <button type="submit" class="button popup__button confirm_delete__button">Да</button>
+      </form>
+    </div>
+  </div>
   <div class="popup popup_type_edit">
     <div class="popup__content">
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Редактировать профиль</h3>
       <form class="popup__form" name="edit-profile">
-        <input type="text" name="name" class="popup__input popup__input_type_name" placeholder="Имя" required>
-        <input type="text" name="description" class="popup__input popup__input_type_description" placeholder="Занятие" required>
+        <input type="text" name="name" id="name-input" class="popup__input popup__input_type_name" placeholder="Имя" minlength="2" maxlength="40" pattern="^[a-zA-Zа-яА-Я\- ]+$" required>
+        <span class="form__input-error name-input-error" ></span>
+        <input type="text" name="description" id="description-input" class="popup__input popup__input_type_description" placeholder="Занятие" minlength="2" maxlength="400" pattern="^[a-zA-Zа-яА-Я\- ]+$" required>
+        <span class="form__input-error description-input-error" ></span>
         <button type="submit" class="button popup__button">Сохранить</button>
       </form>
     </div>
@@ -48,8 +75,10 @@
       <button type="button" class="popup__close"></button>
       <h3 class="popup__title">Новое место</h3>
       <form class="popup__form" name="new-place">
-        <input type="text" name="place-name" class="popup__input popup__input_type_card-name" placeholder="Название" required>
-        <input type="url" name="link" class="popup__input popup__input_type_url" placeholder="Ссылка на картинку" required>
+        <input type="text" name="place-name" id="place-input" class="popup__input popup__input_type_card-name" placeholder="Название" minlength="2" maxlength="30" pattern="^[a-zA-Zа-яА-Я\- ]+$" required>
+        <span class="form__input-error place-input-error" ></span>
+        <input type="url" name="link" id="link-input" class="popup__input popup__input_type_url" pattern="^(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)$" placeholder="Ссылка на картинку" required>
+        <span class="form__input-error link-input-error" ></span>
         <button type="submit" class="button popup__button">Сохранить</button>
       </form>
     </div>
@@ -70,7 +99,10 @@
     <div class="card__description">
       <h2 class="card__title">
       </h2>
+      <div class="like_button_container">
       <button type="button" class="card__like-button"></button>
+      <span class="count_like"></span>
+    </div>
     </div>
   </li>
 </template>
