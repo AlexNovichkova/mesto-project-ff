@@ -1,10 +1,6 @@
-import { closeByEscape } from "./index.js";
-import {clearValidationErrors} from "./validation.js"
-
 function openPopup(popup) {
   popup.classList.toggle("popup_is-opened", true);
   document.addEventListener("keydown", closeByEscape);
-  clearValidationErrors(popup.querySelector(".popup__form"))
 }
 
 function closePopup(popup) {
@@ -14,6 +10,13 @@ function closePopup(popup) {
 
 function animateModal(popup) {
   popup.classList.toggle("popup_is-animated", true);
+}
+
+function closeByEscape(evt) {
+  if (evt.key === "Escape") {
+    const openedPopup = document.querySelector(".popup_is-opened");
+    closePopup(openedPopup);
+  }
 }
 
 export { openPopup, closePopup, animateModal };
