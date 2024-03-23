@@ -1,4 +1,4 @@
-import { animateModal, openPopup} from "./modal.js";
+import { animateModal, openPopup } from "./modal.js";
 
 function createCard(
   data,
@@ -51,11 +51,7 @@ function createCard(
   }
 
   likeButton.addEventListener("click", () => {
-    if (likeButton.classList.contains("card__like-button_is-active")) {
-      unlikeCard(cardElement, data);
-    } else {
-      likeCard(cardElement, data);
-    }
+    handleLikeButtonClick(likeButton, cardElement, data, likeCard, unlikeCard);
   });
 
   cardImage.addEventListener("click", () => {
@@ -65,4 +61,22 @@ function createCard(
   return cardElement;
 }
 
-export { createCard };
+function handleLikeButtonClick(
+  likeButton,
+  cardElement,
+  data,
+  likeCard,
+  unlikeCard
+) {
+  if (likeButton.classList.contains("card__like-button_is-active")) {
+    unlikeCard(cardElement, data);
+  } else {
+    likeCard(cardElement, data);
+  }
+}
+
+function removeCardElement(cardElement) {
+  cardElement.remove();
+}
+
+export { createCard, removeCardElement };

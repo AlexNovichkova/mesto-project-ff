@@ -20,13 +20,21 @@ export const getInfo = () => {
   }).then(handleResponse);
 };
 
+export const getUserId = () => {
+  return fetch(`${config.baseUrl}/users`, { 
+    headers: config.headers 
+  })
+    .then(handleResponse)
+    
+};
+
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,
   })
     .then(handleResponse)
     .then((data) => {
-      return data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Сортировка карточек по дате создания в обратном порядке
+      return data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); 
     });
 };
 
@@ -55,28 +63,19 @@ export function updateAvatar(newAvatarLink) {
 }
 
 export function likeCard(cardElement, data) {
-  const likeButton = cardElement.querySelector(".card__like-button");
-  if (!likeButton.classList.contains("card__like-button_is-active")) {
-    likeButton.classList.add("card__like-button_is-active");
-    localStorage.setItem(`like-${data._id}`, true);
     return fetch(`${config.baseUrl}/cards/likes/${cardElement.dataset.id}`, {
       method: "PUT",
       headers: config.headers,
     }).then(handleResponse);
-  }
 }
 
-export function unlikeCard(cardElement, data) {
-  const likeButton = cardElement.querySelector(".card__like-button");
 
-  if (likeButton.classList.contains("card__like-button_is-active")) {
-    likeButton.classList.remove("card__like-button_is-active");
-    localStorage.setItem(`like-${data._id}`, false);
+export function unlikeCard(cardElement, data) { 
     return fetch(`${config.baseUrl}/cards/likes/${cardElement.dataset.id}`, {
       method: "DELETE",
       headers: config.headers,
     }).then(handleResponse);
-  }
+  
 }
 
 export function deleteCard(cardElement) {

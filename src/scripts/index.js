@@ -1,9 +1,11 @@
 import ".././styles/index.css";
-import { createCard } from "./card.js";
+import { updateButtonState } from "./utils.js";
+import { createCard, removeCardElement } from "./card.js";
 import { openPopup, closePopup, animateModal } from "./modal.js";
 import { enableValidation, clearValidationErrors } from "./validation.js";
 import {
   getInitialCards,
+  getUserId,
   updateUserInfo,
   createNewCard,
   updateAvatar,
@@ -20,8 +22,8 @@ const config = {
   inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
   inactiveButtonClass: "button_inactive",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__error_visible",
+  inputErrorClass: "form__input_type_error",
+  errorClass: "form__input-error_active",
 };
 const profileImg = document.querySelector(".profile__image");
 const popapChangeAvatar = document.querySelector(".popup_type_change-avatar");
@@ -102,10 +104,10 @@ function handleChangeAvatarSubmit(evt) {
   const changeAvatarButton = formAvatarElement.querySelector(".button");
   updateButtonState(changeAvatarButton, true);
   const link = formAvatarElement.elements.link.value;
-  profileImg.style.backgroundImage = `url(${link})`;
   updateAvatar(link)
     .then((data) => {
       console.log("Avatar updated successfully:", data);
+      profileImg.style.backgroundImage = `url(${link})`;
       closePopup(popapChangeAvatar);
     })
     .catch((error) => {
@@ -124,12 +126,12 @@ function handleFormProfileSubmit(evt) {
     .then((userData) => {
       profileTitle.textContent = userData.name;
       profileDescription.textContent = userData.about;
+      closePopup(profileEditContainer);
     })
     .catch((error) => {
       console.error("Ошибка при обновлении информации о пользователе:", error);
     });
   updateButtonState(formProfileButton, true);
-  closePopup(profileEditContainer);
 }
 
 function handleFormCardSubmit(evt) {
@@ -155,16 +157,6 @@ function handleFormCardSubmit(evt) {
     });
 }
 
-function updateButtonState(buttonElement, isSaving) {
-  if (isSaving) {
-    buttonElement.textContent = "Сохранение...";
-    buttonElement.disabled = true;
-  } else {
-    buttonElement.textContent = "Сохранить";
-    buttonElement.disabled = false;
-  }
-}
-
 formProfileElement.addEventListener("submit", handleFormProfileSubmit);
 formCardElement.addEventListener("submit", handleFormCardSubmit);
 formAvatarElement.addEventListener("submit", handleChangeAvatarSubmit);
@@ -181,27 +173,38 @@ function addCardToPage(data, isMyCard) {
     deleteCard(cardElement)
       .then(() => {
         closePopup(document.querySelector(".popup_type_delete"));
-        cardElement.remove();
+        removeCardElement(cardElement);
       })
       .catch((error) => console.error("Ошибка при удалении карточки:", error));
   };
   const unlikeCardFunc = (cardElement, data) => {
-    unlikeCard(cardElement, data)
-      .then((updatedCardData) => {
-        const countLike = cardElement.querySelector(".count_like");
-        countLike.textContent = updatedCardData.likes.length;
-        data.likes = updatedCardData.likes;
-      })
-      .catch((error) => console.error("Ошибка при удалении лайка:", error));
+    const likeButton = cardElement.querySelector(".card__like-button");
+
+  if (likeButton.classList.contains("card__like-button_is-active")) {
+      likeButton.classList.remove("card__like-button_is-active");
+      localStorage.setItem(`like-${data._id}`, false);
+      unlikeCard(cardElement, data)
+        .then((updatedCardData) => {
+          const countLike = cardElement.querySelector(".count_like");
+          countLike.textContent = updatedCardData.likes.length;
+          data.likes = updatedCardData.likes;
+        })
+        .catch((error) => console.error("Ошибка при удалении лайка:", error));
+    } 
   };
   const likeCardFunc = (cardElement, data) => {
-    likeCard(cardElement, data)
-      .then((updatedCardData) => {
-        const countLike = cardElement.querySelector(".count_like");
-        countLike.textContent = updatedCardData.likes.length;
-        data.likes = updatedCardData.likes;
+    const likeButton = cardElement.querySelector(".card__like-button");
+  if (!likeButton.classList.contains("card__like-button_is-active")) {
+      likeButton.classList.add("card__like-button_is-active");
+      localStorage.setItem(`like-${data._id}`, true);
+      likeCard(cardElement, data)
+        .then((updatedCardData) => {
+          const countLike = cardElement.querySelector(".count_like");
+          countLike.textContent = updatedCardData.likes.length;
+          data.likes = updatedCardData.likes;
       })
       .catch((error) => console.error("Ошибка при постановке лайка:", error));
+    }
   };
   const cardElement = createCard(
     data,
@@ -219,19 +222,23 @@ function addCardToPage(data, isMyCard) {
   placesList.insertBefore(cardElement, placesList.firstChild);
 }
 
-getInitialCards()
-  .then((cards) => {
-    cards.reverse().forEach((cardData) => {
-      addCardToPage(
-        cardData,
-        JSON.parse(localStorage.getItem("myCards") || "[]").includes(
-          cardData._id
-        )
-      );
-    });
-  })
-  .catch((err) => {
-    console.log(err);
+getUserId()
+  .then(data => data.id);
+
+Promise.all([getInitialCards(), getUserId()])
+.then(([cards, userId]) => {
+  cards.reverse().forEach(cardData => {
+    addCardToPage(
+      cardData,
+      JSON.parse(localStorage.getItem("myCards") || "[]").includes(cardData._id),
+      userId
+    );
   });
+})
+.catch(err => {
+  console.log(err);
+});
+
+
 
 enableValidation(config);
