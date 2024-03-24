@@ -20,14 +20,6 @@ export const getInfo = () => {
   }).then(handleResponse);
 };
 
-export const getUserId = () => {
-  return fetch(`${config.baseUrl}/users`, { 
-    headers: config.headers 
-  })
-    .then(handleResponse)
-    
-};
-
 export const getInitialCards = () => {
   return fetch(`${config.baseUrl}/cards`, {
     headers: config.headers,

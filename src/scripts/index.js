@@ -5,7 +5,6 @@ import { openPopup, closePopup, animateModal } from "./modal.js";
 import { enableValidation, clearValidationErrors } from "./validation.js";
 import {
   getInitialCards,
-  getUserId,
   updateUserInfo,
   createNewCard,
   updateAvatar,
@@ -42,21 +41,6 @@ const formProfileElement = profileEditContainer.querySelector(".popup__form");
 const popupsAll = document.querySelectorAll(".popup");
 const popapImg = document.querySelector(".popup__image");
 const popapDescription = document.querySelector(".popup__caption");
-
-getInfo()
-  .then((userData) => {
-    // Обновляем информацию о пользователе на странице
-    const userNameElement = document.querySelector(".profile__title");
-    const userDescElement = document.querySelector(".profile__description");
-    const userAvatarElement = document.querySelector(".profile__image");
-
-    userNameElement.textContent = userData.name;
-    userDescElement.textContent = userData.about;
-    userAvatarElement.style.backgroundImage = `url(${userData.avatar})`;
-  })
-  .catch((err) => {
-    console.error(err);
-  });
 
 animateModal(popupCardEdit);
 animateModal(profileEditContainer);
@@ -222,23 +206,31 @@ function addCardToPage(data, isMyCard) {
   placesList.insertBefore(cardElement, placesList.firstChild);
 }
 
-getUserId()
-  .then(data => data.id);
 
-Promise.all([getInitialCards(), getUserId()])
-.then(([cards, userId]) => {
-  cards.reverse().forEach(cardData => {
-    addCardToPage(
-      cardData,
-      JSON.parse(localStorage.getItem("myCards") || "[]").includes(cardData._id),
-      userId
-    );
-  });
-})
-.catch(err => {
-  console.log(err);
+Promise.all([getInitialCards(), getInfo()])
+
+.then(([cards, userData]) => {
+const userNameElement = document.querySelector(".profile__title");
+const userDescElement = document.querySelector(".profile__description");
+const userAvatarElement = document.querySelector(".profile__image");
+
+userNameElement.textContent = userData.name;
+userDescElement.textContent = userData.about;
+userAvatarElement.style.backgroundImage = `url(${userData.avatar})`;
+
+cards.reverse().forEach(cardData => {
+addCardToPage(
+cardData,
+JSON.parse(localStorage.getItem("myCards") || "[]").includes(cardData._id),
+userData._id
+);
 });
 
+})
+
+.catch(err => {
+console.log(err);
+});
 
 
 enableValidation(config);
